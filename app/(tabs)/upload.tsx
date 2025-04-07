@@ -197,25 +197,25 @@ export default function UploadScreen() {
     }
   };
 
-  // Kategori adını Türkçeye çevirme
-  const getCategoryName = (catKey: string): string => {
+  // Kategori adını Türkçe ve İngilizce olarak alma
+  const getCategoryName = (catKey: string): { tr: string; en: string } => {
     switch (catKey) {
       case "yuz":
-        return "Yüz";
+        return { tr: "Yüz", en: "Face" };
       case "kulak":
-        return "Kulak";
+        return { tr: "Kulak", en: "Ear" };
       case "medikal":
-        return "Medikal";
+        return { tr: "Medikal", en: "Medical" };
       case "vucut":
-        return "Vücut";
+        return { tr: "Vücut", en: "Body" };
       case "gogus":
-        return "Göğüs";
+        return { tr: "Göğüs", en: "Breast" };
       case "popo":
-        return "Popo";
+        return { tr: "Popo", en: "Buttocks" };
       case "kolbacak":
-        return "Kol ve Bacak";
+        return { tr: "Kol ve Bacak", en: "Arms & Legs" };
       default:
-        return "Yüz";
+        return { tr: "Yüz", en: "Face" };
     }
   };
 
@@ -334,11 +334,8 @@ export default function UploadScreen() {
             </TouchableOpacity>
 
             <View style={styles.categoryBadge}>
-              <View style={styles.categoryIcon}>{getCategoryIcon()}</View>
               <View style={styles.categoryTextContainer}>
-                <Text style={styles.categoryBadgeText}>
-                  {title || procedureTitle}
-                </Text>
+                <Text style={styles.categoryBadgeText}>{procedureTitle}</Text>
                 <Text style={styles.categoryBadgeSubText}>
                   {procedureSubtitle}
                 </Text>
@@ -373,8 +370,8 @@ export default function UploadScreen() {
             {/* Photo Guidance Text */}
             <View style={styles.guidanceContainer}>
               <Text style={styles.photoGuidanceText}>
-                Yüz bölgenizin net göründüğü, doğal ışıklı bir fotoğraf
-                yükleyin.
+                Yüz bölgenizin net göründüğü bir fotoğraf yükleyin. Doğal ışık
+                ve nötr bir arka plan tercih edilir.
                 <Text
                   style={styles.photoTipsLink}
                   onPress={() => setShowExampleModal(true)}
@@ -450,35 +447,36 @@ const styles = StyleSheet.create({
   categoryBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-    paddingHorizontal: 15,
-    paddingVertical: 8,
+    backgroundColor: "transparent",
+    paddingHorizontal: 5,
+    paddingVertical: 5,
     borderRadius: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
     marginRight: 8,
-    maxWidth: width * 0.6,
-  },
-  categoryIcon: {
-    marginRight: 8,
+    maxWidth: width * 0.7,
   },
   categoryTextContainer: {
     flexDirection: "column",
-    flex: 1,
+    alignItems: "flex-end",
+    width: "100%",
   },
   categoryBadgeText: {
     color: "#fff",
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "600",
+    textAlign: "right",
+    textShadowColor: "rgba(0, 0, 0, 0.5)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
   },
   categoryBadgeSubText: {
-    color: "rgba(255, 255, 255, 0.8)",
-    fontSize: 12,
+    color: "rgba(255, 255, 255, 0.9)",
+    fontSize: 13,
     fontStyle: "italic",
-    marginTop: 2,
+    marginTop: 3,
+    textAlign: "right",
+    textShadowColor: "rgba(0, 0, 0, 0.5)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
   },
   contentCard: {
     flex: 1,
@@ -760,20 +758,30 @@ const styles = StyleSheet.create({
     borderLeftWidth: 3,
     borderLeftColor: "#000",
   },
+  guidanceContainer: {
+    marginTop: 8,
+    marginBottom: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    backgroundColor: "transparent",
+    alignItems: "center",
+  },
   photoGuidanceText: {
-    color: "#666",
-    fontSize: 13,
+    color: "#888",
+    fontSize: 12,
     fontStyle: "italic",
     lineHeight: 18,
+    textAlign: "center",
+    textShadowColor: "rgba(0, 0, 0, 0.05)",
+    textShadowOffset: { width: 0.5, height: 0.5 },
+    textShadowRadius: 1,
   },
   photoTipsLink: {
     color: "#4CAF50",
     fontWeight: "600",
     textDecorationLine: "none",
-  },
-  guidanceContainer: {
-    marginTop: 12,
-    marginBottom: 10,
-    paddingHorizontal: 5,
+    textShadowColor: "rgba(0, 0, 0, 0.05)",
+    textShadowOffset: { width: 0.5, height: 0.5 },
+    textShadowRadius: 1,
   },
 });
