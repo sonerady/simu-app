@@ -76,14 +76,14 @@ interface ProcedureData {
 
 // Import face_covers assets
 const faceCovers = {
-  burunEstetigi: require("../../assets/face_covers/burun_estetigi.png"),
-  sacEkimi: require("../../assets/face_covers/sac_ekimi.png"),
-  ceneEstetigi: require("../../assets/face_covers/cene_estetigi.png"),
-  yuzGerme: require("../../assets/face_covers/yuz_germe.png"),
-  gozKapagi: require("../../assets/face_covers/goz_kapagi.png"),
-  kasKaldirma: require("../../assets/face_covers/kas_kaldirma.png"),
-  elmacikKemigi: require("../../assets/face_covers/elmacik_kemigi.png"),
-  dudakEstetigi: require("../../assets/face_covers/dudak_estetigi.png"),
+  burun_estetigi: require("../../assets/face_covers/burun_estetigi.png"),
+  sac_ekimi: require("../../assets/face_covers/sac_ekimi.png"),
+  cene_estetigi: require("../../assets/face_covers/cene_estetigi.png"),
+  yuz_germe: require("../../assets/face_covers/yuz_germe.png"),
+  goz_kapagi: require("../../assets/face_covers/goz_kapagi.png"),
+  kas_kaldirma: require("../../assets/face_covers/kas_kaldirma.png"),
+  elmacik_kemigi: require("../../assets/face_covers/elmacik_kemigi.png"),
+  dudak_estetigi: require("../../assets/face_covers/dudak_estetigi.png"),
 };
 
 // Card component for displaying procedures
@@ -91,21 +91,53 @@ const Card = ({ title, subtitle, imageUrl, category }: CardProps) => {
   // Determine if the image source is a URL string or a local require
   const isUrl = typeof imageUrl === "string";
 
-  return (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() =>
-        router.push({
-          pathname: "/(tabs)/upload",
-          params: {
-            procedureTitle: title,
-            procedureSubtitle: subtitle,
-            procedureImage: isUrl ? imageUrl : "",
-            category: category,
-          },
-        })
+  // Handle navigation with proper image handling
+  const handleCardPress = () => {
+    // Generate a normalized key for local images
+    let localKey = "";
+
+    if (!isUrl) {
+      // Extract filename from require structure for more reliable mapping
+      // The require sources have format like: faceCovers.burunEstetigi
+      // We want to extract just "burunEstetigi" and normalize it
+      const keyParts = Object.entries(faceCovers).find(
+        ([key, value]) => value === imageUrl
+      );
+
+      if (keyParts) {
+        localKey = keyParts[0]; // Use the key directly from faceCovers object
+        console.log("Found local key:", localKey, "for procedure:", title);
+      } else {
+        // Fallback to title-based key if we can't find the image
+        localKey = title
+          .toLowerCase()
+          .replace(/ı/g, "i")
+          .replace(/ğ/g, "g")
+          .replace(/ü/g, "u")
+          .replace(/ş/g, "s")
+          .replace(/ö/g, "o")
+          .replace(/ç/g, "c")
+          .replace(/\s+/g, "_");
+        console.log("Using fallback key:", localKey, "for procedure:", title);
       }
-    >
+    }
+
+    // Navigate to upload screen
+    router.push({
+      pathname: "/(tabs)/upload",
+      params: {
+        procedureTitle: title,
+        procedureSubtitle: subtitle,
+        procedureImage: isUrl ? imageUrl : "",
+        category: category,
+        isLocalImage: isUrl ? "false" : "true",
+        localImageKey: localKey,
+      },
+    });
+  };
+
+  return (
+    <TouchableOpacity style={styles.card} onPress={handleCardPress}>
       <ImageBackground
         source={isUrl ? { uri: imageUrl as string } : imageUrl}
         style={styles.cardImage}
@@ -466,42 +498,42 @@ export default function HomeScreen() {
       {
         title: "Burun Estetiği",
         subtitle: "Rinoplasti",
-        imageUrl: faceCovers.burunEstetigi,
+        imageUrl: faceCovers.burun_estetigi,
       },
       {
         title: "Saç Ekimi",
         subtitle: "Hair Transplantation",
-        imageUrl: faceCovers.sacEkimi,
+        imageUrl: faceCovers.sac_ekimi,
       },
       {
         title: "Çene Estetiği",
         subtitle: "Genioplasti",
-        imageUrl: faceCovers.ceneEstetigi,
+        imageUrl: faceCovers.cene_estetigi,
       },
       {
         title: "Yüz Germe",
         subtitle: "Ritidektomi",
-        imageUrl: faceCovers.yuzGerme,
+        imageUrl: faceCovers.yuz_germe,
       },
       {
         title: "Göz Kapağı Estetiği",
         subtitle: "Blefaroplasti",
-        imageUrl: faceCovers.gozKapagi,
+        imageUrl: faceCovers.goz_kapagi,
       },
       {
         title: "Kaş Kaldırma",
         subtitle: "Frontal Lift",
-        imageUrl: faceCovers.kasKaldirma,
+        imageUrl: faceCovers.kas_kaldirma,
       },
       {
         title: "Elmacık Kemiği",
         subtitle: "Malar Augmentasyon",
-        imageUrl: faceCovers.elmacikKemigi,
+        imageUrl: faceCovers.elmacik_kemigi,
       },
       {
         title: "Dudak Estetiği",
         subtitle: "Lip Enhancement",
-        imageUrl: faceCovers.dudakEstetigi,
+        imageUrl: faceCovers.dudak_estetigi,
       },
     ],
     kulak: [
