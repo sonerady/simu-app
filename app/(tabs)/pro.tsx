@@ -75,8 +75,21 @@ export default function ProScreen() {
   const [showBottomSheet, setShowBottomSheet] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState("weekly");
 
+  // New states for Terms and Privacy bottom sheet
+  const [showLegalBottomSheet, setShowLegalBottomSheet] = useState(false);
+  const [legalContent, setLegalContent] = useState<{
+    title: string;
+    content: string;
+  }>({
+    title: "",
+    content: "",
+  });
+
   // Animation value for bottom sheet
   const bottomSheetAnimation = useRef(new Animated.Value(0)).current;
+
+  // Animation value for legal bottom sheet
+  const legalBottomSheetAnimation = useRef(new Animated.Value(0)).current;
 
   const navigateToHome = () => {
     router.navigate("/(tabs)");
@@ -209,12 +222,72 @@ export default function ProScreen() {
     extrapolate: "clamp",
   });
 
+  // Open legal bottom sheet
+  const openLegalBottomSheet = (type: "terms" | "privacy") => {
+    const content =
+      type === "terms"
+        ? {
+            title: "Terms of Use",
+            content:
+              'These Terms of Use ("Terms") govern your access to and use of Simu.ai\'s application and services. By using our application, you agree to be bound by these Terms.\n\n' +
+              "1. Acceptance of Terms\nBy downloading, installing, or using our application, you acknowledge that you have read, understood, and agree to be bound by these Terms.\n\n" +
+              "2. Changes to Terms\nWe may modify these Terms at any time. Your continued use of the application after any modification indicates your acceptance of the modified Terms.\n\n" +
+              "3. Privacy\nOur Privacy Policy explains how we collect, use, and share your information. By using our application, you agree to our collection and use of information as described in the Privacy Policy.\n\n" +
+              "4. User Accounts\nYou may need to create an account to use certain features of our application. You are responsible for maintaining the confidentiality of your account information.\n\n" +
+              "5. Subscription and Billing\nCertain features of our application require a paid subscription. Subscriptions will automatically renew unless cancelled before the renewal date. You can cancel anytime through your account settings.",
+          }
+        : {
+            title: "Privacy Policy",
+            content:
+              'This Privacy Policy ("Policy") describes how Simu.ai collects, uses, and shares your personal information when you use our application.\n\n' +
+              "1. Information We Collect\nWe may collect information you provide directly, such as your name, email, and payment information when you create an account or make a purchase.\n\n" +
+              "2. How We Use Your Information\nWe use your information to provide and improve our services, process transactions, send notifications, and communicate with you.\n\n" +
+              "3. Information Sharing\nWe may share your information with third-party service providers that help us operate our application, process payments, or provide customer support.\n\n" +
+              "4. Data Security\nWe implement reasonable security measures to protect your personal information from unauthorized access, disclosure, or destruction.\n\n" +
+              "5. Your Rights\nDepending on your location, you may have certain rights regarding your personal information, such as the right to access, correct, or delete your information.\n\n" +
+              "6. Changes to This Policy\nWe may update this Policy from time to time. We will notify you of any changes by posting the new Policy on this page.",
+          };
+
+    setLegalContent(content);
+    setShowLegalBottomSheet(true);
+    Animated.timing(legalBottomSheetAnimation, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  // Close legal bottom sheet
+  const closeLegalBottomSheet = () => {
+    Animated.timing(legalBottomSheetAnimation, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      setShowLegalBottomSheet(false);
+    });
+  };
+
+  // Calculate legal bottom sheet translation
+  const legalTranslateY = legalBottomSheetAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [height, 0],
+    extrapolate: "clamp",
+  });
+
+  // Calculate legal backdrop opacity
+  const legalBackdropOpacity = legalBottomSheetAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 0.5],
+    extrapolate: "clamp",
+  });
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
 
       {/* Header using the new component */}
-      <Header title="Simu.ai" onBackPress={navigateToHome} />
+      <Header title="Simu.ai PRO" onBackPress={navigateToHome} />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Carousel Images */}
@@ -266,9 +339,13 @@ export default function ProScreen() {
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Terms of Use</Text>
+          <TouchableOpacity onPress={() => openLegalBottomSheet("terms")}>
+            <Text style={styles.footerText}>Terms of Use</Text>
+          </TouchableOpacity>
           <Text style={styles.footerSeparator}>|</Text>
-          <Text style={styles.footerText}>Privacy Policy</Text>
+          <TouchableOpacity onPress={() => openLegalBottomSheet("privacy")}>
+            <Text style={styles.footerText}>Privacy Policy</Text>
+          </TouchableOpacity>
           <Text style={styles.footerSeparator}>|</Text>
           <Text style={styles.footerText}>Restore Purchase</Text>
         </View>
@@ -346,6 +423,42 @@ export default function ProScreen() {
               <Text style={styles.termsText}>
                 Cancel anytime. Subscription auto-renews until cancelled.
               </Text>
+            </View>
+          </Animated.View>
+        </View>
+      )}
+
+      {/* Legal Bottom Sheet */}
+      {showLegalBottomSheet && (
+        <View style={StyleSheet.absoluteFill}>
+          <TouchableWithoutFeedback onPress={closeLegalBottomSheet}>
+            <Animated.View
+              style={[styles.backdrop, { opacity: legalBackdropOpacity }]}
+            />
+          </TouchableWithoutFeedback>
+
+          <Animated.View
+            style={[
+              styles.bottomSheetContainer,
+              { transform: [{ translateY: legalTranslateY }], height: "80%" },
+            ]}
+          >
+            <View style={styles.bottomSheetHandle} />
+
+            <View style={styles.bottomSheetContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>{legalContent.title}</Text>
+                <TouchableOpacity
+                  style={styles.modalCloseButton}
+                  onPress={closeLegalBottomSheet}
+                >
+                  <Ionicons name="close-circle" size={28} color="#FF4B4B" />
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView style={styles.legalContentContainer}>
+                <Text style={styles.legalText}>{legalContent.content}</Text>
+              </ScrollView>
             </View>
           </Animated.View>
         </View>
@@ -648,5 +761,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: "center",
     marginTop: 15,
+  },
+  legalContentContainer: {
+    flex: 1,
+    marginBottom: 20,
+  },
+  legalText: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: "#333",
+    marginBottom: 20,
   },
 });

@@ -1,6 +1,12 @@
 import { Tabs } from "expo-router";
-import React from "react";
-import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
+import React, { useRef, useEffect } from "react";
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Text,
+  Animated,
+} from "react-native";
 import { BlurView } from "expo-blur";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -26,6 +32,82 @@ const NavIcon = ({ name, size, color }: NavIconProps) => {
   }
 };
 
+// Tab component that can safely use hooks
+const AnimatedTab = ({ route, isFocused, onPress }: any) => {
+  // Animation values
+  const animatedWidth = useRef(new Animated.Value(isFocused ? 1 : 0)).current;
+
+  // Run animation when focus changes
+  useEffect(() => {
+    Animated.spring(animatedWidth, {
+      toValue: isFocused ? 1 : 0,
+      useNativeDriver: false,
+      friction: 8,
+      tension: 100,
+    }).start();
+  }, [isFocused]);
+
+  // Route name to icon name mapping
+  let iconName;
+  let tabLabel;
+  switch (route.name) {
+    case "index":
+      iconName = "home";
+      tabLabel = "Home";
+      break;
+    case "gallery":
+      iconName = "gallery";
+      tabLabel = "Gallery";
+      break;
+    case "profile":
+      iconName = "profile";
+      tabLabel = "Profile";
+      break;
+    default:
+      iconName = "home";
+      tabLabel = "Home";
+  }
+
+  // Calculate animated styles
+  const containerStyle = {
+    width: animatedWidth.interpolate({
+      inputRange: [0, 1],
+      outputRange: [40, 110],
+    }),
+    backgroundColor: animatedWidth.interpolate({
+      inputRange: [0, 1],
+      outputRange: ["transparent", "#003aff"],
+    }),
+    paddingHorizontal: animatedWidth.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 16],
+    }),
+  };
+
+  const labelStyle = {
+    opacity: animatedWidth,
+    marginLeft: animatedWidth.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 8],
+    }),
+  };
+
+  return (
+    <TouchableOpacity style={styles.navItem} onPress={onPress}>
+      <Animated.View style={[styles.navIconContainer, containerStyle]}>
+        <NavIcon
+          name={iconName}
+          size={22}
+          color={isFocused ? "#fff" : "#6e6e6e"}
+        />
+        <Animated.Text style={[styles.tabLabel, labelStyle]}>
+          {tabLabel}
+        </Animated.Text>
+      </Animated.View>
+    </TouchableOpacity>
+  );
+};
+
 export default function TabLayout() {
   return (
     <Tabs
@@ -33,7 +115,7 @@ export default function TabLayout() {
         headerShown: false,
         tabBarStyle: { display: "none" }, // Hide default tab bar since we're using our custom one
       }}
-      tabBar={(props) => {
+      tabBar={(props: any) => {
         // Pro ve upload sayfasında bottom bar'ı gösterme
         if (
           props.state.routes[props.state.index].name === "pro" ||
@@ -48,61 +130,37 @@ export default function TabLayout() {
             <View style={styles.bottomNavContainer}>
               <BlurView intensity={30} style={styles.bottomNavBlur}>
                 <View style={styles.bottomNav}>
-                  {/* Sadece ilk 4 route'u göster */}
-                  {props.state.routes.slice(0, 4).map((route, index) => {
-                    const isFocused = props.state.index === index;
-                    const onPress = () => {
-                      const event = props.navigation.emit({
-                        type: "tabPress",
-                        target: route.key,
-                        canPreventDefault: true,
-                      });
+                  {/* Filter out the pro tab and show only home, gallery and profile */}
+                  {props.state.routes
+                    .filter((route: any) => route.name !== "pro")
+                    .slice(0, 3)
+                    .map((route: any, index: any) => {
+                      // Check if this route is focused by name instead of index
+                      const isFocused =
+                        props.state.routes[props.state.index].name ===
+                        route.name;
 
-                      if (!isFocused && !event.defaultPrevented) {
-                        props.navigation.navigate(route.name);
-                      }
-                    };
+                      const onPress = () => {
+                        const event = props.navigation.emit({
+                          type: "tabPress",
+                          target: route.key,
+                          canPreventDefault: true,
+                        });
 
-                    // Route name to icon name mapping
-                    let iconName;
-                    switch (route.name) {
-                      case "index":
-                        iconName = "home";
-                        break;
-                      case "gallery":
-                        iconName = "gallery";
-                        break;
-                      case "pro":
-                        iconName = "pro";
-                        break;
-                      case "profile":
-                        iconName = "profile";
-                        break;
-                      default:
-                        iconName = "home";
-                    }
+                        if (!isFocused && !event.defaultPrevented) {
+                          props.navigation.navigate(route.name);
+                        }
+                      };
 
-                    return (
-                      <TouchableOpacity
-                        key={index}
-                        style={styles.navItem}
-                        onPress={onPress}
-                      >
-                        <View
-                          style={[
-                            styles.navIconContainer,
-                            isFocused && styles.activeNavIconContainer,
-                          ]}
-                        >
-                          <NavIcon
-                            name={iconName}
-                            size={22}
-                            color={isFocused ? "#fff" : "#6e6e6e"}
-                          />
-                        </View>
-                      </TouchableOpacity>
-                    );
-                  })}
+                      return (
+                        <AnimatedTab
+                          key={index}
+                          route={route}
+                          isFocused={isFocused}
+                          onPress={onPress}
+                        />
+                      );
+                    })}
                 </View>
               </BlurView>
             </View>
@@ -154,13 +212,15 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   navIconContainer: {
-    width: 40,
     height: 40,
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
+    flexDirection: "row",
   },
-  activeNavIconContainer: {
-    backgroundColor: "#000",
+  tabLabel: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 14,
   },
 });

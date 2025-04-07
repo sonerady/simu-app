@@ -172,79 +172,6 @@ const AnnouncementBanner = () => {
   );
 };
 
-// Icon component for bottom navigation
-const NavIcon = ({ name, isActive }: NavIconProps) => {
-  const getIcon = () => {
-    const color = isActive ? "#fff" : "#6e6e6e";
-    const size = 22;
-
-    switch (name) {
-      case "home":
-        return <Ionicons name="home" size={size} color={color} />;
-      case "gallery":
-        return <Ionicons name="grid-outline" size={size} color={color} />;
-      case "pro":
-        return <Ionicons name="sparkles-outline" size={size} color={color} />;
-      case "profile":
-        return <Ionicons name="person-outline" size={size} color={color} />;
-      default:
-        return <Ionicons name="ellipse" size={size} color={color} />;
-    }
-  };
-
-  return (
-    <View
-      style={[
-        styles.navIconContainer,
-        isActive && styles.activeNavIconContainer,
-      ]}
-    >
-      {getIcon()}
-    </View>
-  );
-};
-
-// Category component for aesthetic procedures
-const CategoryCard = ({
-  icon,
-  title,
-  backgroundColor,
-  isSelected,
-  onSelect,
-}: CategoryCardProps) => {
-  return (
-    <TouchableOpacity
-      style={[
-        styles.categoryCard,
-        { backgroundColor: isSelected ? "#000" : "rgba(255, 255, 255, 0.9)" },
-      ]}
-      onPress={onSelect}
-    >
-      <View
-        style={[
-          styles.categoryIconContainer,
-          {
-            backgroundColor: isSelected
-              ? "rgba(255, 255, 255, 0.2)"
-              : backgroundColor,
-          },
-        ]}
-      >
-        {React.cloneElement(icon as React.ReactElement, {
-          color: isSelected ? "#fff" : "#fff",
-          size: 22,
-        })}
-      </View>
-      <Text
-        style={[styles.categoryTitle, { color: isSelected ? "#fff" : "#333" }]}
-        numberOfLines={2}
-      >
-        {title}
-      </Text>
-    </TouchableOpacity>
-  );
-};
-
 // Tab selector component
 const TabSelector = ({ activeTab, onTabChange }: TabSelectorProps) => {
   const getTabIcon = (tabId: string, isActive: boolean) => {
@@ -686,28 +613,6 @@ export default function HomeScreen() {
           ))}
         </View>
       </ScrollView>
-
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNavWrapper}>
-        <View style={styles.bottomNavContainer}>
-          <BlurView intensity={30} style={styles.bottomNavBlur}>
-            <View style={styles.bottomNav}>
-              <TouchableOpacity style={styles.navItem}>
-                <NavIcon name="home" isActive={true} />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.navItem}>
-                <NavIcon name="gallery" isActive={false} />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.navItem}>
-                <NavIcon name="pro" isActive={false} />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.navItem}>
-                <NavIcon name="profile" isActive={false} />
-              </TouchableOpacity>
-            </View>
-          </BlurView>
-        </View>
-      </View>
     </SafeAreaView>
   );
 }
@@ -737,7 +642,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: "rgba(200, 200, 200, 0.5)",
-    shadowColor: "#000",
+    shadowColor: "#003aff",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -869,7 +774,7 @@ const styles = StyleSheet.create({
     minHeight: 45,
   },
   activeTabOption: {
-    backgroundColor: "#1A1A1A",
+    backgroundColor: "#000",
   },
   inactiveTabOption: {
     backgroundColor: "#F0F0F0",
@@ -917,7 +822,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
     flexDirection: "row",
     alignItems: "center",
-    shadowColor: "#000",
+    shadowColor: "#003aff",
     shadowOffset: {
       width: 0,
       height: 2,
