@@ -1,15 +1,20 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { router } from "expo-router";
 
 interface HeaderProps {
   title?: string;
 }
 
 const Header = ({ title = "Simu.ai" }: HeaderProps) => {
+  const handleProPress = () => {
+    router.push("/pro");
+  };
+
   return (
     <View style={styles.header}>
       <Text style={styles.headerTitle}>{title}</Text>
-      <TouchableOpacity style={styles.proButton}>
+      <TouchableOpacity style={styles.proButton} onPress={handleProPress}>
         <View style={styles.proButtonInner}>
           <Text style={styles.proButtonText}>PRO</Text>
         </View>
